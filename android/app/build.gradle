@@ -1,0 +1,45 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.ultra.cardbattle'
+    compileSdk 33
+
+    defaultConfig {
+        applicationId "com.ultra.cardbattle"
+        minSdk 21
+        targetSdk 33
+        versionCode 1
+        versionName "1.0.0"
+    }
+
+    signingConfigs {
+        release {
+            storeFile file("ultra-release.keystore")
+            storePassword "ultra2026"
+            keyAlias "ultra"
+            keyPassword "ultra2026"
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+        }
+        debug {
+            minifyEnabled false
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    // 用较老的稳定版本，兼容 compileSdk 33
+    implementation 'androidx.appcompat:appcompat:1.4.2'
+}
