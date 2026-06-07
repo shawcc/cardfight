@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>⚡ 奥特曼卡片大战 · ULTRA BATTLE</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+SC:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- 背景粒子画布 -->
+  <canvas id="bg-particles"></canvas>
+
+  <!-- 顶部装饰 -->
+  <div class="top-decoration">
+    <div class="deco-line"></div>
+    <div class="deco-scan"></div>
+  </div>
+
+  <div id="app">
+    <!-- ============ 主页面 - 双人卡片 + 战斗按钮 ============ -->
+    <section id="menu-screen" class="screen active">
+      <!-- 标题区 -->
+      <div class="main-header">
+        <h1 class="main-title">
+          <span class="title-bolt">⚡</span>
+          <span class="title-text">奥特曼卡片大战</span>
+          <span class="title-bolt">⚡</span>
+        </h1>
+        <div class="main-subtitle">ULTRA BATTLE · 双人对战</div>
+
+        <!-- 功能入口 - 小按钮 -->
+        <button class="menu-more" id="btn-more">
+          <span>···</span>
+        </button>
+      </div>
+
+      <!-- 隐藏功能菜单 -->
+      <div class="more-menu" id="more-menu" style="display:none;">
+        <button class="more-item" id="btn-collection">
+          <span class="more-icon">◇</span>
+          <span>卡片图鉴</span>
+        </button>
+        <button class="more-item" id="btn-manual-select">
+          <span class="more-icon">⚔</span>
+          <span>手动选卡</span>
+        </button>
+      </div>
+
+      <!-- 卡片选择区 -->
+      <div class="player-slots">
+        <!-- 玩家1 -->
+        <div class="player-slot" data-player="1">
+          <div class="slot-header">
+            <span class="player-badge p1">玩家 1</span>
+          </div>
+          <div class="card-scan" data-player="1">
+            <!-- 未扫描状态 -->
+            <div class="scan-empty">
+              <div class="scan-icon-wrap">
+                <div class="scan-ring"></div>
+                <div class="scan-btn-inner">
+                  <span class="camera-emoji">📷</span>
+                  <span class="camera-text">扫描卡片</span>
+                </div>
+              </div>
+              <div class="scan-hint">点击开始识别</div>
+            </div>
+            <!-- 已扫描状态 -->
+            <div class="scan-result" style="display:none;">
+              <canvas class="card-portrait"></canvas>
+              <div class="card-info">
+                <div class="card-name"></div>
+                <div class="card-rarity"></div>
+                <div class="card-stats">
+                  <div class="stat-item"><span class="stat-label">HP</span><span class="stat-val"></span></div>
+                  <div class="stat-item"><span class="stat-label">ATK</span><span class="stat-val"></span></div>
+                  <div class="stat-item"><span class="stat-label">DEF</span><span class="stat-val"></span></div>
+                  <div class="stat-item"><span class="stat-label">SPD</span><span class="stat-val"></span></div>
+                </div>
+              </div>
+            </div>
+            <!-- 重新扫描按钮 -->
+            <button class="rescan-btn" style="display:none;">
+              <span>↻</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- VS 分隔 -->
+        <div class="vs-divider">
+          <div class="vs-ring">
+            <div class="vs-text">VS</div>
+          </div>
+        </div>
+
+        <!-- 玩家2 -->
+        <div class="player-slot" data-player="2">
+          <div class="slot-header">
+            <span class="player-badge p2">玩家 2</span>
+          </div>
+          <div class="card-scan" data-player="2">
+            <!-- 未扫描状态 -->
+            <div class="scan-empty">
+              <div class="scan-icon-wrap">
+                <div class="scan-ring"></div>
+                <div class="scan-btn-inner">
+                  <span class="camera-emoji">📷</span>
+                  <span class="camera-text">扫描卡片</span>
+                </div>
+              </div>
+              <div class="scan-hint">点击开始识别</div>
+            </div>
+            <!-- 已扫描状态 -->
+            <div class="scan-result" style="display:none;">
+              <canvas class="card-portrait"></canvas>
+              <div class="card-info">
+                <div class="card-name"></div>
+                <div class="card-rarity"></div>
+                <div class="card-stats">
+                  <div class="stat-item"><span class="stat-label">HP</span><span class="stat-val"></span></div>
+                  <div class="stat-item"><span class="stat-label">ATK</span><span class="stat-val"></span></div>
+                  <div class="stat-item"><span class="stat-label">DEF</span><span class="stat-val"></span></div>
+                  <div class="stat-item"><span class="stat-label">SPD</span><span class="stat-val"></span></div>
+                </div>
+              </div>
+            </div>
+            <!-- 重新扫描按钮 -->
+            <button class="rescan-btn" style="display:none;">
+              <span>↻</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 战斗按钮 -->
+      <div class="battle-start-wrap">
+        <button class="glow-btn primary huge" id="btn-start-battle" disabled>
+          <span class="btn-border"></span>
+          <span class="btn-content">
+            <span class="btn-icon">🔥</span>
+            <span class="btn-text">开始战斗</span>
+          </span>
+        </button>
+        <div class="battle-hint">请两位玩家分别扫描卡片</div>
+      </div>
+    </section>
+
+    <!-- ============ 扫描卡片页面 ============ -->
+    <section id="camera-screen" class="screen">
+      <div class="screen-header">
+        <button class="nav-back" id="btn-back-menu">
+          <span class="back-arrow">◀</span>
+          <span>返回</span>
+        </button>
+        <div class="screen-title">
+          <span class="title-icon">◎</span>
+          <h2><span id="scan-player">玩家 1</span> · 扫描卡片</h2>
+        </div>
+        <div style="width:80px;"></div>
+      </div>
+
+      <div class="camera-area">
+        <div class="camera-viewport">
+          <div class="viewport-frame">
+            <div class="frame-corner tl"></div>
+            <div class="frame-corner tr"></div>
+            <div class="frame-corner bl"></div>
+            <div class="frame-corner br"></div>
+            <div class="scan-line"></div>
+            <div class="scan-glow"></div>
+          </div>
+          <video id="camera-video" autoplay playsinline muted></video>
+          <canvas id="camera-canvas" style="display:none;"></canvas>
+
+          <div class="camera-hint" id="camera-hint">
+            <span>📷 将卡片对准摄像头</span>
+          </div>
+
+          <!-- 扫描动画层 -->
+          <div class="scan-effect" id="scan-effect" style="display:none;">
+            <div class="scan-spiral"></div>
+            <div class="scan-text">识别中...</div>
+          </div>
+        </div>
+
+        <div class="camera-actions">
+          <button class="glow-btn primary" id="btn-capture">
+            <span class="btn-border"></span>
+            <span class="btn-content">
+              <span class="btn-icon">◉</span>
+              <span class="btn-text">识别卡片</span>
+            </span>
+          </button>
+          <button class="glow-btn secondary" id="btn-random-card">
+            <span class="btn-border"></span>
+            <span class="btn-content">
+              <span class="btn-icon">🎲</span>
+              <span class="btn-text">随机抽取</span>
+            </span>
+          </button>
+        </div>
+
+        <!-- 扫描结果 -->
+        <div class="scanned-card" id="scanned-card" style="display:none;">
+          <div class="scanned-inner" id="scanned-inner"></div>
+          <div class="scanned-actions">
+            <button class="glow-btn secondary" id="btn-rescan">
+              <span class="btn-border"></span>
+              <span class="btn-content"><span class="btn-icon">↻</span><span class="btn-text">重新扫描</span></span>
+            </button>
+            <button class="glow-btn primary" id="btn-confirm-card">
+              <span class="btn-border"></span>
+              <span class="btn-content"><span class="btn-icon">✓</span><span class="btn-text">确认</span></span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 卡片选择页面（手动选卡模式）============ -->
+    <section id="select-screen" class="screen">
+      <div class="screen-header">
+        <button class="nav-back" id="btn-back-menu2">
+          <span class="back-arrow">◀</span>
+          <span>返回</span>
+        </button>
+        <div class="screen-title">
+          <span class="title-icon">◇</span>
+          <h2>手动选择卡片</h2>
+        </div>
+        <div class="turn-indicator" id="turn-indicator">
+          <span class="turn-badge active" id="turn-p1">玩家1</span>
+          <span class="turn-sep">VS</span>
+          <span class="turn-badge" id="turn-p2">玩家2</span>
+        </div>
+      </div>
+
+      <div class="filter-row">
+        <button class="filter-chip active" data-filter="all"><span>全部</span></button>
+        <button class="filter-chip" data-filter="hero"><span class="chip-icon">⚡</span><span>奥特曼</span></button>
+        <button class="filter-chip" data-filter="monster"><span class="chip-icon">☠</span><span>怪兽</span></button>
+      </div>
+
+      <div class="card-grid" id="card-grid"></div>
+
+      <div class="battle-ready">
+        <div class="ready-slot" id="ready-p1">
+          <div class="slot-label">玩家1</div>
+          <div class="slot-content empty">等待选择</div>
+        </div>
+        <div class="ready-center">
+          <div class="vs-ring">
+            <div class="vs-text">VS</div>
+            <div class="vs-ring-glow"></div>
+          </div>
+        </div>
+        <div class="ready-slot" id="ready-p2">
+          <div class="slot-label">玩家2</div>
+          <div class="slot-content empty">等待选择</div>
+        </div>
+      </div>
+
+      <button class="glow-btn go-battle" id="btn-start-battle2" disabled>
+        <span class="btn-border"></span>
+        <span class="btn-content">
+          <span class="btn-icon">🔥</span>
+          <span class="btn-text">开始战斗</span>
+        </span>
+      </button>
+    </section>
+
+    <!-- ============ 卡片图鉴页面 ============ -->
+    <section id="collection-screen" class="screen">
+      <div class="screen-header">
+        <button class="nav-back" id="btn-back-menu3">
+          <span class="back-arrow">◀</span>
+          <span>返回</span>
+        </button>
+        <div class="screen-title">
+          <span class="title-icon">◇</span>
+          <h2>卡片图鉴</h2>
+        </div>
+        <div class="dex-count" id="dex-count">共 0 张</div>
+      </div>
+
+      <div class="filter-row">
+        <button class="filter-chip active" data-filter="all"><span>全部</span></button>
+        <button class="filter-chip" data-filter="hero"><span class="chip-icon">⚡</span><span>奥特曼</span></button>
+        <button class="filter-chip" data-filter="monster"><span class="chip-icon">☠</span><span>怪兽</span></button>
+      </div>
+
+      <div class="card-grid" id="collection-grid"></div>
+    </section>
+
+    <!-- ============ 战斗页面 ============ -->
+    <section id="battle-screen" class="screen">
+      <!-- 战斗信息栏 -->
+      <div class="battle-hud">
+        <div class="hud-left">
+          <div class="hud-avatar" id="hud-avatar-left"></div>
+          <div class="hud-details">
+            <div class="hud-name" id="hud-name-left"></div>
+            <div class="hud-bars">
+              <div class="bar-row">
+                <span class="bar-label">HP</span>
+                <div class="bar-track hp">
+                  <div class="bar-fill" id="hp-fill-left"></div>
+                  <div class="bar-glow"></div>
+                </div>
+                <span class="bar-value" id="hp-value-left"></span>
+              </div>
+              <div class="bar-row">
+                <span class="bar-label">EP</span>
+                <div class="bar-track energy">
+                  <div class="bar-fill" id="energy-fill-left"></div>
+                  <div class="bar-glow"></div>
+                </div>
+                <span class="bar-value" id="energy-value-left"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hud-center">
+          <div class="round-badge">
+            <span class="round-label">ROUND</span>
+            <span class="round-num" id="round-num">01</span>
+          </div>
+        </div>
+
+        <div class="hud-right">
+          <div class="hud-details">
+            <div class="hud-name" id="hud-name-right"></div>
+            <div class="hud-bars">
+              <div class="bar-row">
+                <span class="bar-value" id="hp-value-right"></span>
+                <div class="bar-track hp">
+                  <div class="bar-fill" id="hp-fill-right"></div>
+                  <div class="bar-glow"></div>
+                </div>
+                <span class="bar-label">HP</span>
+              </div>
+              <div class="bar-row">
+                <span class="bar-value" id="energy-value-right"></span>
+                <div class="bar-track energy">
+                  <div class="bar-fill" id="energy-fill-right"></div>
+                  <div class="bar-glow"></div>
+                </div>
+                <span class="bar-label">EP</span>
+              </div>
+            </div>
+          </div>
+          <div class="hud-avatar" id="hud-avatar-right"></div>
+        </div>
+      </div>
+
+      <!-- 战斗画布 -->
+      <div class="battle-stage">
+        <canvas id="battle-canvas"></canvas>
+        <div class="stage-overlay" id="stage-overlay"></div>
+        <div class="damage-layer" id="damage-layer"></div>
+      </div>
+
+      <!-- 战斗日志 -->
+      <div class="battle-ticker">
+        <div class="ticker-content" id="battle-log"></div>
+      </div>
+
+      <!-- 战斗操作栏 -->
+      <div class="battle-controls">
+        <button class="glow-btn small secondary" id="btn-exit-battle">
+          <span class="btn-border"></span>
+          <span class="btn-content"><span class="btn-icon">✕</span><span class="btn-text">退出</span></span>
+        </button>
+        <button class="glow-btn small primary" id="btn-replay" style="display:none;">
+          <span class="btn-border"></span>
+          <span class="btn-content"><span class="btn-icon">↻</span><span class="btn-text">再来一局</span></span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ============ 结果弹窗 ============ -->
+    <div class="modal" id="result-modal" style="display:none;">
+      <div class="modal-bg"></div>
+      <div class="modal-panel">
+        <div class="panel-corner tl"></div>
+        <div class="panel-corner tr"></div>
+        <div class="panel-corner bl"></div>
+        <div class="panel-corner br"></div>
+
+        <div class="result-title" id="result-title">
+          <span class="result-glow"></span>
+          <span class="result-text">VICTORY</span>
+        </div>
+        <div class="result-winner" id="result-winner"></div>
+        <div class="result-sub" id="result-sub"></div>
+
+        <button class="glow-btn primary big" id="btn-modal-close">
+          <span class="btn-border"></span>
+          <span class="btn-content"><span class="btn-icon">✓</span><span class="btn-text">确认</span></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ============ 卡片详情弹窗 ============ -->
+    <div class="modal" id="card-modal" style="display:none;">
+      <div class="modal-bg"></div>
+      <div class="modal-panel card-panel">
+        <div class="panel-corner tl"></div>
+        <div class="panel-corner tr"></div>
+        <div class="panel-corner bl"></div>
+        <div class="panel-corner br"></div>
+
+        <div class="card-detail" id="card-detail-content"></div>
+
+        <button class="glow-btn primary" id="btn-card-close">
+          <span class="btn-border"></span>
+          <span class="btn-content"><span class="btn-icon">✓</span><span class="btn-text">关闭</span></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="data/cards.js"></script>
+  <script src="js/battle.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/animation.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
