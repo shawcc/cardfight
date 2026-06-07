@@ -1,0 +1,35 @@
+# Gradle / Android build artifacts
+.gradle/
+build/
+android/.gradle/
+android/build/
+android/app/build/
+android/app/release/
+android/local.properties
+
+# Android Studio
+.idea/
+*.iml
+*.iws
+*.ipr
+captures/
+.externalNativeBuild/
+
+# APK / bundle
+*.apk
+*.aab
+*.ap_
+
+# Java
+*.class
+*.jar
+
+# Node (if you ever add tooling)
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
