@@ -820,21 +820,33 @@
 
   function captureCardImage() {
     if (window.gameAudio) window.gameAudio.playClick();
-    const card = window.getRandomCard();
-    speak('识别成功！获得' + card.name + '卡片！');
-    showScanResult(card);
+    const scanEffect = document.getElementById('scan-effect');
+    if (scanEffect) scanEffect.style.display = 'flex';
+    // 1.5 秒识别动画
+    setTimeout(function () {
+      const card = window.getRandomCard();
+      speak('识别成功，' + card.name + '！');
+      showScanResult(card);
+    }, 1500);
   }
 
   function randomPickCard() {
     if (window.gameAudio) window.gameAudio.playClick();
-    const card = window.getRandomCard();
-    speak('获得' + card.name + '卡片！');
-    showScanResult(card);
+    const scanEffect = document.getElementById('scan-effect');
+    if (scanEffect) scanEffect.style.display = 'flex';
+    setTimeout(function () {
+      const card = window.getRandomCard();
+      speak('获得' + card.name + '！');
+      showScanResult(card);
+    }, 800);
   }
 
   function showScanResult(card) {
     const scannedEl = document.getElementById('scanned-card');
     const inner = document.getElementById('scanned-inner');
+    // ✅ 隐藏扫描动画层
+    const scanEffect = document.getElementById('scan-effect');
+    if (scanEffect) scanEffect.style.display = 'none';
     if (!scannedEl || !inner) return;
 
     inner.innerHTML = '';
@@ -848,7 +860,9 @@
 
   function hideScanResult() {
     const scannedEl = document.getElementById('scanned-card');
+    const scanEffect = document.getElementById('scan-effect');
     if (scannedEl) scannedEl.style.display = 'none';
+    if (scanEffect) scanEffect.style.display = 'none';
     state.capturedCard = null;
   }
 
@@ -928,7 +942,7 @@
       window.gameAudio.playBattleStart();
       window.gameAudio.startBattleMusic();
     }
-    speak(card1.name + '对战' + card2.name + '，战斗开始！');
+    speak('战斗开始！');
 
     await delay(1500);
 
@@ -1007,7 +1021,8 @@
         ? '⚡ ' + attacker.name + ' 使用【' + event.skillName + '】 对 ' + defender.name + ' 造成 ' + event.damage + ' 点暴击伤害！'
         : attacker.name + ' 使用【' + event.skillName + '】 对 ' + defender.name + ' 造成 ' + event.damage + ' 点伤害';
       addBattleLog(logText, event.critical ? 'critical' : 'normal');
-      speak(attacker.name + '使用' + event.skillName + '，造成' + event.damage + '点伤害' + (event.critical ? '暴击！' : ''));
+      // ✅ 只播技能名
+      speak(event.skillName + (event.critical ? '，暴击！' : ''));
 
       updateHUDHealth(event);
 
@@ -1018,7 +1033,7 @@
       }
 
       addBattleLog('💜 ' + attacker.name + ' 将 ' + defender.name + ' 吸进体内！', 'absorb');
-      speak(attacker.name + '将' + defender.name + '吸进了体内！');
+      speak('深渊吸收！');
       updateHUDAbsorb(event.attackerSide);
 
     } else if (event.type === 'body-attack') {
@@ -1028,7 +1043,7 @@
       }
 
       addBattleLog('💥 ' + attacker.name + ' 在 ' + defender.name + ' 体内发动攻击！造成 ' + event.damage + ' 点伤害！', 'absorb');
-      speak(attacker.name + '在体内发起反击！');
+      speak('体内攻击！');
       updateHUDHealth(event, true);
 
     } else if (event.type === 'escape') {
@@ -1038,7 +1053,7 @@
       }
 
       addBattleLog('✨ ' + attacker.name + ' 冲破了 ' + defender.name + ' 的束缚，挣脱出来！', 'absorb');
-      speak(attacker.name + '成功挣脱！');
+      speak('挣脱成功！');
       resetHUD();
     }
 
